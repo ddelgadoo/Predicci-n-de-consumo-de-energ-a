@@ -54,9 +54,9 @@ El dataset `c1b851` contiene el registro horario de la demanda real de energía 
 
 ```
 FechaHora            CodigoSICAgente  Valor    Version  MercadoComercializacion  SistemaTransmision  CodigoVariable  CodigoDuracion  UnidadMedida
-2024-01-01 01:00:00  EPM              1245.80  TXr6     MERCADO_REGULADO         STN                 DdaReal         H               MWh
-2024-01-01 01:00:00  CODENSA          980.30   TXr6     MERCADO_REGULADO         STN                 DdaReal         H               MWh
-2024-01-01 01:00:00  ESSA             312.50   TXr6     MERCADO_REGULADO         STR                 DdaReal         H               MWh
+2024-01-01 01:00:00  EPM              1245.80  TXr6     MERCADO_REGULADO         STN                 DdaReal         H               KWh
+2024-01-01 01:00:00  CODENSA          980.30   TXr6     MERCADO_REGULADO         STN                 DdaReal         H               KWh
+2024-01-01 01:00:00  ESSA             312.50   TXr6     MERCADO_REGULADO         STR                 DdaReal         H               KWh
 ```
 
 ---
