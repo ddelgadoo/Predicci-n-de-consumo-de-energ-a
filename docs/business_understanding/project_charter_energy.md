@@ -67,6 +67,5 @@ Su objetivo es guiar el desarrollo de soluciones basadas en datos mediante un pr
 
 ## Aprobaciones
 
-- [Nombre y cargo del aprobador del proyecto]
-- [Firma del aprobador]
-- [Fecha de aprobación]
+- David Delgado
+- Daniel Trillos
