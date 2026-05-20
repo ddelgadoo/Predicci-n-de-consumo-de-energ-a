@@ -1,10 +1,9 @@
-# Team Data Science Project Template
+# Proyecto de predicción de consumo de energía en Colombia
 
-Esta plantilla es una implementación de la plantilla de proyecto de Team Data Science Process que actualmente se utiliza en el "Programa de Formación en Machine Learning y Data Science" en la Universidad Nacional de Colombia.
+El proyecto consiste en desplegar un modelo de ML que usa los datos históricos del consumo energético entre los años 2024-2025.
 
-Esta plantilla proporciona las siguientes carpetas y archivos:
 
-* `src`: acá debe ir el código o implementación del proyecto en Python.
-* `docs`: en esta carpeta se encuentran las plantillas de los documentos definidos en la metodología.
-* `scripts`: esta carpeta debe contener los scripts/notebooks que se ejecutarán.
-* `pyproject.toml`: archivo de definición del proyecto en Python.
+* `src`: Carpeta en donde se encuentra el código del proyecto
+* `docs`: en esta carpeta se encuentran los documentos del proyecto
+* `scripts`: Carpeta con jupyters donde están la exploración de las diferentes etapas 
+* `pyproject.toml`: archivo de definición del proyecto.

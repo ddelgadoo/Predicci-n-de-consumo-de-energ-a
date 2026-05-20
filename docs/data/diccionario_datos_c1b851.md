@@ -9,23 +9,23 @@
 
 ## Descripción general
 
-El dataset `c1b851` contiene el registro horario de la demanda real de energía eléctrica del Sistema Interconectado Nacional (SIN) de Colombia, desagregada por agente del mercado. Es publicado por XM como parte del portal de datos abiertos SIMEM y no requiere autenticación para su consumo.
+El dataset `d55202` contiene el registro horario de la demanda real de los consumidores de energía del Sistema Interconectado Nacional (SIN) de Colombia, desagregada por agente del mercado. Es publicado por XM como parte del portal de datos abiertos SIMEM y no requiere autenticación para su consumo.
 
 ---
 
 ## Estructura del dataset
 
-| # | Columna | Tipo | Valores únicos | Descripción |
-|---|---|---|---|---|
-| 1 | `FechaHora` | `datetime` | 17,544 | Marca de tiempo del registro en formato `YYYY-MM-DD HH:MM:SS`. Representa cada hora del período consultado. Con ~17,544 valores corresponde aproximadamente a **2 años de datos horarios**. |
-| 2 | `Valor` | `float` | Continuo | **Variable objetivo del modelo.** Consumo de energía eléctrica expresado en **KWh**. Aparece como `NaN` en resúmenes categóricos por ser numérica continua. |
-| 3 | `CodigoSICAgente` | `string` | 69 | Código único del agente registrado en el Sistema de Información Comercial (SIC). Identifica la empresa distribuidora u operador de red. Son los 69 agentes activos en el mercado. |
-| 4 | `MercadoComercializacion` | `string` | 28 | Segmento del mercado al que pertenece el agente (mercado regulado, no regulado, entre otros). Permite segmentar el análisis por tipo de usuario. |
-| 5 | `SistemaTransmision` | `string` | 2 | Indica si el agente opera en el **STN** (Sistema de Transmisión Nacional) o en el **STR** (Sistema de Transmisión Regional). |
-| 6 | `Version` | `string` | 10 | Versión del dato publicado. XM puede emitir revisiones  del mismo período. |
-| 7 | `CodigoVariable` | `string` | 1 | Código de la variable medida. Toma un único valor: `DdaReal` Correspondiente a demanda real|
-| 8 | `CodigoDuracion` | `string` | 1 | Código que indica la granularidad temporal del registro. Toma un único valor, correspondiente a medición **horaria**. |
-| 9 | `UnidadMedida` | `string` | 1 | Unidad de medida del campo `Valor`. Toma un único valor: **KWh** (kilovatios-hora). |
+| # | Columna              | Tipo | Descripción                                                                                                                             |
+|---|----------------------|---|-----------------------------------------------------------------------------------------------------------------------------------------|
+| 1 | `CodigoVariable`     | `string` | Código de la variable medida. Toma un único valor: `DdaReal` Correspondiente a demanda real                                             |
+| 2 | `FechaHora`          | `datetime` | Marca de tiempo del registro en formato `YYYY-MM-DD HH:MM:SS`. Representa cada hora del período consultado.                             |
+| 3 | `CodigoSICAgente`    | `string` | Código único del agente registrado en el Sistema de Información Comercial (SIC). Identifica la empresa distribuidora u operador de red. |
+| 4 | `TipoMercado`        | `string` | Segmento del mercado al que pertenece el agente (mercado regulado, no regulado). Permite segmentar el análisis por tipo de usuario.     |
+| 5 | `Version`            | `string` | Versión del dato publicado. XM puede emitir revisiones  del mismo período. (TXF es el dato más preciso,los otros son estimaciones)      |
+| 6 | `Valor`              | `float` | **Variable objetivo del modelo.** Consumo de energía eléctrica expresado en **KWh**.                                                    |
+| 7 | `UnidadMedida`       | `string` | Unidad de medida del campo `Valor`. Toma un único valor: **kWh** (kilovatios-hora).                                                     |
+| 8 | `SistemaTransmision` | `string` | Indica si el agente opera en el **STN** (Sistema de Transmisión Nacional) o en el **STR** (Sistema de Transmisión Regional).            |
+| 9 | `CodigoDuracion`     | `string` | Código que indica la granularidad temporal del registro. Correspondiente a medición **horaria**.                                        |
 
 ---
 

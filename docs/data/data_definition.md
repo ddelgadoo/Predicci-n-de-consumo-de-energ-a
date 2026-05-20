@@ -2,15 +2,16 @@
 
 ## Origen de los datos
 
-- [ ] Especificar la fuente de los datos y la forma en que se obtuvieron. 
+- [ ]Los datos se obtuvieron usando la API de XM, la empresa mayoritaria de distribución energética. Esta API 
+se conecta directamente a sus bases de datos públicas donde contienen los datos energéticos históricos de Colombia.
 
 ## Especificación de los scripts para la carga de datos
 
-- [ ] Especificar los scripts utilizados para la carga de los datos. 
+- [ ] Los scripts de carga de datos se encuentran en la carpeta `scripts/data_acquisition/`
 
 ## Referencias a rutas o bases de datos origen y destino
 
-- [ ] Especificar las rutas o bases de datos de origen y destino para los datos.
+- [ ] El id de la base de datos es `c1b851` la cual se refiere en la base de datos orígen a "Demanda al por mayor "
 
 ### Rutas de origen de datos
 

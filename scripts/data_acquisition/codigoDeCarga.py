@@ -1,8 +1,6 @@
 
 #Para que funcione se debe instalar la librería pydataxm
 # Descargar los datos toma alrededor de 20 min
-
-# !pip install pydataxm
 import pandas as pd
 from pydataxm.pydatasimem import ReadSIMEM
 from datetime import datetime, timedelta
