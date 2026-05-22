@@ -24,5 +24,7 @@ def descargar_rango(dataset_id, fecha_inicio, fecha_fin):
     return pd.concat(dfs, ignore_index=True)
 
 # Descargar 2 año completo de demanda
-df_demanda = descargar_rango('c1b851', '2024-01-01', '2025-12-31')
+df_demanda = descargar_rango('d55202', '2024-01-01', '2025-12-31')
 df_demanda.to_csv('demanda_colombia.csv', index=False)
+
+# Los datos quedan guardados en drive, y en git queda el dvc remote configurado, para futuro solo traerlo con dvc pull

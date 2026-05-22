@@ -1,0 +1,5 @@
+[core]
+    remote = myremote
+['remote "myremote"']
+    url = gdrive://17xBCKcwhDvzE-JVxBS2h3C6pAFXrKtnE
+    gdrive_service_account_json_file_path = D:\5_Universidad\ProyectoMetodologiasAgiles\tdsp_template\src\data\service_account.json
