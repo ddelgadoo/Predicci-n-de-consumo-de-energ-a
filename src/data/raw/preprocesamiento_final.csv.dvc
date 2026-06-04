@@ -1,0 +1,5 @@
+outs:
+- md5: 89ee70d317d105d1be4dadc494face00
+  size: 2094276
+  hash: md5
+  path: preprocesamiento_final.csv
