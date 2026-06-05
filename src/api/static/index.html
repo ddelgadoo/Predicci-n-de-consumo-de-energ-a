@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIN Demand - Predicción Energética Colombia</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <i data-lucide="zap" class="logo-icon"></i>
+                <div class="brand-text">
+                    <h1>SIN Demand</h1>
+                    <span>Mercado Eléctrico CO</span>
+                </div>
+            </div>
+            
+            <nav class="nav-menu">
+                <button class="nav-item active" data-tab="dashboard">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-item" data-tab="xgboost">
+                    <i data-lucide="hourglass"></i>
+                    <span>Corto Plazo (XGBoost)</span>
+                </button>
+                <button class="nav-item" data-tab="prophet">
+                    <i data-lucide="trending-up"></i>
+                    <span>Largo Plazo (Prophet)</span>
+                </button>
+                <button class="nav-item" data-tab="metrics-info">
+                    <i data-lucide="bar-chart-3"></i>
+                    <span>Métricas & Modelos</span>
+                </button>
+            </nav>
+            
+            <div class="status-panel">
+                <div class="status-title">Estado del Sistema</div>
+                <div class="status-item" id="api-status">
+                    <span class="status-dot offline"></span>
+                    <span class="status-text">Backend Offline</span>
+                </div>
+                <div class="status-item" id="xgb-status">
+                    <span class="status-dot offline"></span>
+                    <span class="status-text">XGBoost No Cargado</span>
+                </div>
+                <div class="status-item" id="prophet-status">
+                    <span class="status-dot offline"></span>
+                    <span class="status-text">Prophet No Cargado</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="header-title">
+                    <h2 id="page-title">Panel General</h2>
+                    <p id="page-subtitle">Monitoreo y predicciones de demanda del Sistema Interconectado Nacional</p>
+                </div>
+                <div class="user-profile">
+                    <i data-lucide="user" class="avatar-icon"></i>
+                    <span class="user-name">MLOps Engineer</span>
+                </div>
+            </header>
+
+            <!-- Dashboard Tab -->
+            <section id="tab-dashboard" class="tab-content active">
+                <div class="metrics-grid">
+                    <div class="metric-card glass">
+                        <div class="metric-header">
+                            <span class="metric-title">Modelo XGBoost (R²)</span>
+                            <i data-lucide="check-circle" class="metric-icon xgb-color"></i>
+                        </div>
+                        <div class="metric-value" id="val-xgb-r2">-</div>
+                        <div class="metric-desc">Varianza explicada en test (Baseline)</div>
+                    </div>
+                    <div class="metric-card glass">
+                        <div class="metric-header">
+                            <span class="metric-title">Error Medio XGBoost (MAE)</span>
+                            <i data-lucide="alert-circle" class="metric-icon xgb-color"></i>
+                        </div>
+                        <div class="metric-value" id="val-xgb-mae">-</div>
+                        <div class="metric-desc">kWh de error promedio por hora</div>
+                    </div>
+                    <div class="metric-card glass">
+                        <div class="metric-header">
+                            <span class="metric-title">Precisión Prophet (MAPE)</span>
+                            <i data-lucide="calendar" class="metric-icon prophet-color"></i>
+                        </div>
+                        <div class="metric-value" id="val-prophet-mape">-</div>
+                        <div class="metric-desc">Error porcentual medio absoluto (3 días)</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-charts-grid">
+                    <div class="chart-card glass large">
+                        <div class="card-header">
+                            <h3>Historial de Demanda y Predicción Reciente</h3>
+                            <span class="badge">Datos en Vivo</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="dashboardChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="info-card glass">
+                        <div class="card-header">
+                            <h3>Información del Proyecto</h3>
+                        </div>
+                        <div class="info-body">
+                            <p>Este sistema proporciona predicciones de consumo energético basadas en datos públicos del <strong>SIMEM (XM)</strong> para los años 2024-2025.</p>
+                            <div class="info-list">
+                                <div class="info-list-item">
+                                    <i data-lucide="activity" class="info-list-icon"></i>
+                                    <div>
+                                        <strong>Frecuencia Horaria:</strong>
+                                        <span>Predicciones disponibles con granularidad de 1 hora.</span>
+                                    </div>
+                                </div>
+                                <div class="info-list-item">
+                                    <i data-lucide="shield" class="info-list-icon"></i>
+                                    <div>
+                                        <strong>Casos de Uso:</strong>
+                                        <span>XGBoost optimiza la operación de corto plazo (1-24h), Prophet la planeación semanal.</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="cta-box">
+                                <button class="btn btn-primary" onclick="switchToTab('xgboost')">Simular Corto Plazo</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- XGBoost Tab -->
+            <section id="tab-xgboost" class="tab-content">
+                <div class="tab-split">
+                    <!-- Controls -->
+                    <div class="control-panel glass">
+                        <h3>Simulación de Horizonte</h3>
+                        <p class="panel-desc">Realiza una predicción autorregresiva de XGBoost en base al historial de XM.</p>
+                        
+                        <form id="xgb-auto-form" class="sim-form">
+                            <div class="form-group">
+                                <label for="xgb-start-time">Fecha y Hora de Inicio:</label>
+                                <input type="datetime-local" id="xgb-start-time" name="start_time" min="2024-01-08T00:00" max="2025-12-31T23:00" value="2025-11-20T12:00" required>
+                                <span class="input-note">Datos históricos disponibles entre 2024 y 2025.</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="xgb-steps">Horizonte de predicción (horas):</label>
+                                <div class="range-slider">
+                                    <input type="range" id="xgb-steps" name="steps" min="1" max="72" value="24">
+                                    <span id="xgb-steps-val" class="slider-val">24 hrs</span>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="btn-xgb-auto">Generar Simulación</button>
+                        </form>
+
+                        <div class="divider">ó ingresa datos manualmente</div>
+
+                        <h3>Predicción Manual (1 hora)</h3>
+                        <form id="xgb-manual-form" class="sim-form">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="man-hora">Hora (0-23):</label>
+                                    <input type="number" id="man-hora" min="0" max="23" value="12" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="man-dia">Día (0=Lun, 6=Dom):</label>
+                                    <input type="number" id="man-dia" min="0" max="6" value="3" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="man-mes">Mes (1-12):</label>
+                                    <input type="number" id="man-mes" min="1" max="12" value="11" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="man-tendencia">Tendencia:</label>
+                                    <input type="number" id="man-tendencia" value="16500" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="man-lag1">Demanda hora t-1 (kWh):</label>
+                                <input type="number" id="man-lag1" value="7500000" step="1" required>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="man-lag24">Lag t-24 (kWh):</label>
+                                    <input type="number" id="man-lag24" value="7300000" step="1" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="man-lag168">Lag t-168 (kWh):</label>
+                                    <input type="number" id="man-lag168" value="7600000" step="1" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-secondary">Predecir Punto</button>
+                        </form>
+                    </div>
+
+                    <!-- Visualisation -->
+                    <div class="result-panel glass">
+                        <div class="card-header">
+                            <h3>Predicción XGBoost autorregresiva</h3>
+                            <span class="badge badge-xgb">Corto Plazo</span>
+                        </div>
+                        <div class="chart-container large">
+                            <div class="loader-overlay" id="xgb-loader">
+                                <div class="spinner"></div>
+                                <p>Simulando comportamiento autorregresivo...</p>
+                            </div>
+                            <canvas id="xgbChart"></canvas>
+                        </div>
+                        <div class="predictions-summary" id="xgb-summary-box" style="display:none;">
+                            <div class="summary-metric">
+                                <span class="summary-label">Demanda Máxima Estimada:</span>
+                                <span class="summary-value" id="xgb-max-pred">- kWh</span>
+                            </div>
+                            <div class="summary-metric">
+                                <span class="summary-label">Demanda Mínima Estimada:</span>
+                                <span class="summary-value" id="xgb-min-pred">- kWh</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Prophet Tab -->
+            <section id="tab-prophet" class="tab-content">
+                <div class="tab-split">
+                    <!-- Controls -->
+                    <div class="control-panel glass">
+                        <h3>Planificación de Mediano Plazo</h3>
+                        <p class="panel-desc">Define un rango de fechas para estimar la demanda mediante Prophet.</p>
+                        
+                        <form id="prophet-form" class="sim-form">
+                            <div class="form-group">
+                                <label for="prophet-start-date">Fecha de Inicio:</label>
+                                <input type="date" id="prophet-start-date" name="start_date" min="2024-01-01" max="2026-06-30" value="2025-11-20" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="prophet-end-date">Fecha de Fin:</label>
+                                <input type="date" id="prophet-end-date" name="end_date" min="2024-01-01" max="2026-06-30" value="2025-11-26" required>
+                                <span class="input-note">Recomendado: Máx 14 días para mayor legibilidad.</span>
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="btn-prophet-predict">Ejecutar Pronóstico Prophet</button>
+                        </form>
+                    </div>
+
+                    <!-- Visualisation -->
+                    <div class="result-panel glass">
+                        <div class="card-header">
+                            <h3>Predicción de Serie Temporal (Prophet)</h3>
+                            <span class="badge badge-prophet">Medio Plazo</span>
+                        </div>
+                        <div class="chart-container large">
+                            <div class="loader-overlay" id="prophet-loader">
+                                <div class="spinner"></div>
+                                <p>Alineando estacionalidad y tendencias...</p>
+                            </div>
+                            <canvas id="prophetChart"></canvas>
+                        </div>
+                        <div class="predictions-summary" id="prophet-summary-box" style="display:none;">
+                            <div class="summary-metric">
+                                <span class="summary-label">Promedio de Banda Superior:</span>
+                                <span class="summary-value" id="prophet-avg-upper" style="color: rgba(16, 185, 129, 0.8)">- kWh</span>
+                            </div>
+                            <div class="summary-metric">
+                                <span class="summary-label">Promedio de Banda Inferior:</span>
+                                <span class="summary-value" id="prophet-avg-lower" style="color: rgba(16, 185, 129, 0.5)">- kWh</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Metrics & Info Tab -->
+            <section id="tab-metrics-info" class="tab-content">
+                <div class="tab-split">
+                    <div class="info-card-large glass">
+                        <h3>Importancia de Características (XGBoost)</h3>
+                        <p class="panel-desc">Pesos asignados por el modelo baseline a las variables de entrada.</p>
+                        <div class="chart-container" style="height: 300px;">
+                            <canvas id="importanceChart"></canvas>
+                        </div>
+                        <div class="model-explainer">
+                            <h4>¿Cómo entender esta gráfica?</h4>
+                            <p>Las variables de <strong>lag</strong> representan el consumo en horas anteriores y son fundamentales en modelos autorregresivos. El <strong>lag_168</strong> corresponde a la demanda a la misma hora del mismo día de la semana anterior (exactamente hace 7 días), el cual actúa como el principal ancla de nivel. Las codificaciones de seno y coseno capturan la naturaleza circular de la hora del día, el día de la semana y el mes del año sin introducir discontinuidades numéricas en el modelo.</p>
+                        </div>
+                    </div>
+
+                    <div class="info-card-large glass">
+                        <h3>Especificaciones de los Modelos</h3>
+                        <div class="specs-table-container">
+                            <table class="specs-table">
+                               <thead>
+                                   <tr>
+                                       <th>Atributo</th>
+                                       <th>XGBoost (Baseline)</th>
+                                       <th>Prophet (Avanzado)</th>
+                                   </tr>
+                               </thead>
+                               <tbody>
+                                   <tr>
+                                       <td><strong>Tipo de Algoritmo</strong></td>
+                                       <td>Gradient Boosted Decision Trees</td>
+                                       <td>Generalized Additive Model (GAM)</td>
+                                   </tr>
+                                   <tr>
+                                       <td><strong>Caso de Uso</strong></td>
+                                       <td>Operación diaria en tiempo real</td>
+                                       <td>Planificación y simulación de largo plazo</td>
+                                   </tr>
+                                   <tr>
+                                       <td><strong>Frecuencia</strong></td>
+                                       <td>Horaria</td>
+                                       <td>Diaria/Horaria</td>
+                                   </tr>
+                                   <tr>
+                                       <td><strong>Entradas Clave</strong></td>
+                                       <td>Valores recientes (lags), tendencia, fecha cíclica</td>
+                                       <td>Marca de tiempo (ds) únicamente</td>
+                                   </tr>
+                                   <tr>
+                                       <td><strong>Fortalezas</strong></td>
+                                       <td>Extrema precisión en el corto plazo (R²: 0.986)</td>
+                                       <td>No acumula error en horizontes lejanos</td>
+                                   </tr>
+                                   <tr>
+                                       <td><strong>Limitaciones</strong></td>
+                                       <td>Dependencia de datos reales para actualizar lags</td>
+                                       <td>Menos preciso ante variaciones horarias puntuales</td>
+                                   </tr>
+                               </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
