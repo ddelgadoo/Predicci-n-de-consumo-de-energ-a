@@ -2,15 +2,11 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Copiar dependencias
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar el proyecto completo
-COPY src .
-
-# Copiar mlruns con el modelo entrenado
-COPY mlruns/ mlruns/
+# Copiar todo el proyecto
+COPY . .
 
 EXPOSE 8000
 
