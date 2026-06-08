@@ -49,6 +49,10 @@ def entrenar_xgboost(X: pd.DataFrame,
         with open("best_model.txt", "w") as f:
             f.write(rel_path)
 
+        import json
+        with open("model_metrics.json", "w") as f:
+            json.dump({"mae": round(mae, 2), "rmse": round(rmse, 2), "r2": round(r2, 4)}, f)
+
         print(f"Modelo entrenado. mae: {mae}, rmse: {rmse}, r2: {r2}")
         return model, y_test, y_pred
 

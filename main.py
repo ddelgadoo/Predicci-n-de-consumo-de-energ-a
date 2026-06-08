@@ -156,6 +156,17 @@ def predict(fecha: str):
     }
 
 
+@app.get("/metrics")
+def metrics():
+    """Devuelve las métricas del modelo activo."""
+    try:
+        import json
+        with open("model_metrics.json") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Métricas no disponibles.")
+
+
 @app.get("/datos-hasta")
 def datos_hasta(fecha: str):
     """
