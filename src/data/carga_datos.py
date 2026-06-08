@@ -5,13 +5,14 @@ from pydataxm.pydatasimem import ReadSIMEM
 from datetime import datetime, timedelta
 import pandas as pd
 import logging
-from preprocessing.preprocessing import preprocessing
+from src.preprocessing.preprocessing import preprocessing
 
 
-def descargar_rango(fecha_inicio: str, fecha_fin: str) -> pd.DataFrame:
+def descargar_rango(fecha_inicio: str, fecha_fin: str, preprocesar: bool = True) -> pd.DataFrame:
     """
     Descarga de la API de XM la base de datos d55202
     "Demanda real energía Colombia" y la preprocesa por lotes.
+    Para no aplicar preprocesamiento, indicar preprocesar = False
     """
     start = datetime.strptime(fecha_inicio, '%Y-%m-%d')
     end = datetime.strptime(fecha_fin, '%Y-%m-%d')
@@ -36,11 +37,14 @@ def descargar_rango(fecha_inicio: str, fecha_fin: str) -> pd.DataFrame:
 
             print(f" Preprocesando lote de {len(df_raw)} filas")
 
-            # 3. Aplicar pipeline de preprocesamiento al lote
-            df_clean = preprocessing(df_raw)
+            if preprocesar:
+                # 3. Aplicar pipeline de preprocesamiento al lote
+                df_clean = preprocessing(df_raw)
+                # 4. Guardamos el lote ya limpio
+                dfs.append(df_clean)
+            else:
+                dfs.append(df_raw)
 
-            # 4. Guardamos el lote ya limpio
-            dfs.append(df_clean)
         else:
             print(f" No se encontraron datos para {str_inicio} - {str_fin}")
 
@@ -58,9 +62,8 @@ def descargar_rango(fecha_inicio: str, fecha_fin: str) -> pd.DataFrame:
         return pd.DataFrame()
 
 
-if __name__ == '__main__':
 
-    print(descargar_rango("2024-01-01", "2024-03-30").head())
+
 
 
 

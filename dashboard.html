@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demanda Energética Colombia</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0f14;
+    --surface: #13161e;
+    --surface2: #1a1e28;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --accent: #00d4aa;
+    --accent2: #378ADD;
+    --mono: 'Space Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    min-height: 100vh;
+    padding: 2rem;
+  }
+
+  header {
+    display: flex;
+    align-items: baseline;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+    border-bottom: 0.5px solid var(--border2);
+    padding-bottom: 1.5rem;
+  }
+
+  header h1 {
+    font-family: var(--mono);
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--accent);
+  }
+
+  header span {
+    font-size: 13px;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+
+  .panel-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.25rem;
+  }
+
+  label {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    font-family: var(--mono);
+    letter-spacing: 0.5px;
+  }
+
+  input[type="datetime-local"] {
+    width: 100%;
+    background: var(--surface2);
+    border: 0.5px solid var(--border2);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 1rem;
+    color-scheme: dark;
+  }
+
+  input[type="datetime-local"]:focus { border-color: var(--accent); }
+
+  button#predict-btn {
+    width: 100%;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 11px;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+
+  button#predict-btn:hover { opacity: 0.88; }
+  button#predict-btn:active { transform: scale(0.98); }
+  button#predict-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .result-box {
+    margin-top: 1.5rem;
+    padding: 1.25rem;
+    background: var(--surface2);
+    border-radius: 8px;
+    border: 0.5px solid var(--border);
+    display: none;
+  }
+
+  .result-box.visible { display: block; }
+
+  .result-label {
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .result-value {
+    font-family: var(--mono);
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -1px;
+  }
+
+  .result-unit {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 4px;
+    font-family: var(--mono);
+  }
+
+  .error-box {
+    margin-top: 1rem;
+    padding: 10px 12px;
+    background: rgba(226,75,74,0.1);
+    border: 0.5px solid rgba(226,75,74,0.3);
+    border-radius: 8px;
+    font-size: 13px;
+    color: #f09595;
+    font-family: var(--mono);
+    display: none;
+  }
+
+  .error-box.visible { display: block; }
+
+  .chart-wrap {
+    position: relative;
+    height: 340px;
+  }
+
+  .chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+  }
+
+  .legend {
+    display: flex;
+    gap: 1rem;
+    font-size: 12px;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+
+  .legend-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 5px;
+    vertical-align: middle;
+  }
+
+  .loading-overlay {
+    position: absolute;
+    inset: 0;
+    background: var(--surface);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--border2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-right: 10px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .stat-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 1.5rem;
+  }
+
+  .stat {
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+
+  .stat-l { font-size: 11px; color: var(--muted); font-family: var(--mono); letter-spacing: 0.5px; }
+  .stat-v { font-size: 16px; font-weight: 500; font-family: var(--mono); margin-top: 3px; }
+
+  @media (max-width: 800px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>// demanda energética CO</h1>
+  <span>modelo XGBoost · 2024–2025</span>
+</header>
+
+<div class="grid">
+
+  <div class="panel">
+    <p class="panel-title">Predicción puntual</p>
+
+    <label for="fecha-input">fecha y hora</label>
+    <input type="datetime-local" id="fecha-input" value="2026-02-15T14:00" step="3600" />
+
+    <button id="predict-btn" onclick="predecir()">Predecir demanda →</button>
+
+    <div class="error-box" id="error-box"></div>
+
+    <div class="result-box" id="result-box">
+      <p class="result-label">demanda predicha</p>
+      <p class="result-value" id="result-value">—</p>
+      <p class="result-unit">kWh</p>
+    </div>
+
+    <div class="stat-row" id="stat-row" style="display:none">
+      <div class="stat">
+        <p class="stat-l">fecha</p>
+        <p class="stat-v" id="stat-fecha" style="font-size:13px">—</p>
+      </div>
+      <div class="stat">
+        <p class="stat-l">hora</p>
+        <p class="stat-v" id="stat-hora">—</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="chart-header">
+      <p class="panel-title" style="margin-bottom:0">7 días previos + predicción</p>
+      <div class="legend">
+        <span><span class="legend-dot" style="background:#00d4aa"></span>real</span>
+        <span><span class="legend-dot" style="background:#378ADD; border-radius:50%"></span>predicción</span>
+      </div>
+    </div>
+    <div class="chart-wrap">
+      <div class="loading-overlay" id="loading">
+        <div class="spinner"></div> cargando datos...
+      </div>
+      <canvas id="chart"></canvas>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const API = 'http://127.0.0.1:8000';
+let chartInstance = null;
+
+function getFechaInput() {
+  const input = document.getElementById('fecha-input').value;
+  return input.slice(0, 16) + ':00';
+}
+
+async function cargarYRenderizar(fecha, prediccion) {
+  const loading = document.getElementById('loading');
+  loading.style.display = 'flex';
+
+  try {
+    const res = await fetch(`${API}/datos-hasta?fecha=${encodeURIComponent(fecha)}`);
+    const data = await res.json();
+    loading.style.display = 'none';
+    renderChart(data, fecha, prediccion);
+  } catch (e) {
+    loading.innerHTML = '<span style="color:#f09595;font-family:var(--mono);font-size:12px">error al cargar datos</span>';
+  }
+}
+
+function renderChart(data, fechaPrediccion, valorPrediccion) {
+  const labels = data.map(d => {
+    const dt = new Date(d.FechaHora);
+    return dt.toLocaleDateString('es-CO', { month: 'short', day: 'numeric' }) + ' ' +
+           dt.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+  });
+
+  const valores = data.map(d => Math.round(d.Valor));
+
+  if (fechaPrediccion) {
+    const dt = new Date(fechaPrediccion);
+    const label = dt.toLocaleDateString('es-CO', { month: 'short', day: 'numeric' }) + ' ' +
+                  dt.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+    labels.push(label);
+    valores.push(null);
+  }
+
+  const predData = labels.map((_, i) => {
+    if (i === labels.length - 2 && valorPrediccion !== undefined) return Math.round(valores[i] || 0);
+    if (i === labels.length - 1 && valorPrediccion !== undefined) return Math.round(valorPrediccion);
+    return null;
+  });
+
+  const ctx = document.getElementById('chart').getContext('2d');
+  if (chartInstance) chartInstance.destroy();
+
+  chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Real',
+          data: valores,
+          borderColor: '#00d4aa',
+          backgroundColor: 'rgba(0,212,170,0.07)',
+          borderWidth: 1.5,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          pointHoverBackgroundColor: '#00d4aa',
+          fill: true,
+          tension: 0.3,
+          spanGaps: false,
+        },
+        {
+          label: 'Predicción',
+          data: predData,
+          borderColor: '#378ADD',
+          backgroundColor: 'rgba(55,138,221,0.15)',
+          borderWidth: 2,
+          borderDash: [5, 4],
+          pointRadius: predData.map((v, i) => (i === predData.length - 1 && v !== null) ? 7 : 0),
+          pointHoverRadius: 8,
+          pointBackgroundColor: '#378ADD',
+          fill: false,
+          tension: 0,
+          spanGaps: true,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1a1e28',
+          borderColor: 'rgba(255,255,255,0.1)',
+          borderWidth: 0.5,
+          titleColor: '#6b7280',
+          bodyColor: '#e8eaf0',
+          titleFont: { family: 'Space Mono', size: 11 },
+          bodyFont: { family: 'Space Mono', size: 13 },
+          padding: 10,
+          callbacks: {
+            label: ctx => {
+              if (ctx.parsed.y === null) return null;
+              const prefix = ctx.dataset.label === 'Predicción' ? ' ▶ ' : ' ';
+              return prefix + ctx.parsed.y.toLocaleString('es-CO') + ' kWh';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: '#6b7280',
+            font: { family: 'Space Mono', size: 10 },
+            maxTicksLimit: 8,
+            maxRotation: 0,
+          },
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          border: { color: 'rgba(255,255,255,0.07)' }
+        },
+        y: {
+          ticks: {
+            color: '#6b7280',
+            font: { family: 'Space Mono', size: 10 },
+            callback: v => (v / 1e6).toFixed(1) + 'M'
+          },
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          border: { color: 'rgba(255,255,255,0.07)' }
+        }
+      }
+    }
+  });
+}
+
+async function predecir() {
+  const input = document.getElementById('fecha-input').value;
+  if (!input) return;
+
+  const btn = document.getElementById('predict-btn');
+  const resultBox = document.getElementById('result-box');
+  const errorBox = document.getElementById('error-box');
+  const statRow = document.getElementById('stat-row');
+
+  btn.disabled = true;
+  btn.textContent = 'Consultando...';
+  resultBox.classList.remove('visible');
+  errorBox.classList.remove('visible');
+
+  const fecha = input.slice(0, 16) + ':00';
+
+  try {
+    const res = await fetch(`${API}/predict?fecha=${encodeURIComponent(fecha)}`);
+    const data = await res.json();
+
+    if (!res.ok) {
+      errorBox.textContent = data.detail || 'Error desconocido';
+      errorBox.classList.add('visible');
+    } else {
+      const val = Math.round(data.demanda_predicha_kwh);
+      document.getElementById('result-value').textContent = val.toLocaleString('es-CO');
+
+      const dt = new Date(input);
+      document.getElementById('stat-fecha').textContent =
+        dt.toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' });
+      document.getElementById('stat-hora').textContent =
+        dt.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+
+      resultBox.classList.add('visible');
+      statRow.style.display = 'grid';
+
+      await cargarYRenderizar(fecha, val);
+    }
+  } catch (e) {
+    errorBox.textContent = 'No se pudo conectar con la API.';
+    errorBox.classList.add('visible');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Predecir demanda →';
+  }
+}
+
+cargarYRenderizar(getFechaInput(), undefined);
+</script>
+</body>
+</html>

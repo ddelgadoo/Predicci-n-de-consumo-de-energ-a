@@ -77,6 +77,19 @@ def horasCíclicas(df:pd.DataFrame) -> pd.DataFrame:
     print("Horas exitoso\n")
     return df
 
+def feature_engineering(df: pd.DataFrame, drop_fecha: bool = True) -> pd.DataFrame:
+    df = df.copy()
+    df['tendencia'] = np.arange(len(df))
+    df['lag_1']     = df['Valor'].shift(1)
+    df['lag_24']    = df['Valor'].shift(24)
+    df['lag_168']   = df['Valor'].shift(168)
+    df = df.dropna()
+
+    if drop_fecha:
+        df = df.drop(columns=['FechaHora'])
+
+    print(f"Feature engineering exitoso. Filas resultantes: {len(df)}\n")
+    return df
 
 def preprocessing(df: pd.DataFrame) -> pd.DataFrame:
     verificacionFormatoFecha(df)
@@ -89,6 +102,5 @@ def preprocessing(df: pd.DataFrame) -> pd.DataFrame:
                        .pipe(groupbyPorHora)
                        .pipe(horasCíclicas)
                        )
-    df_preprocesado = df_preprocesado.drop(columns =['FechaHora'])
     return df_preprocesado
 
