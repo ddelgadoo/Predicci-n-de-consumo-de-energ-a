@@ -54,22 +54,22 @@ app.add_middleware(
 
 # ── Utilidad: cargar último modelo de MLflow ───────────────────────────────────
 def cargar_ultimo_modelo():
-    client = mlflow.tracking.MlflowClient()
-    experimentos = client.search_runs(
-        experiment_ids=["0"],
-        order_by=["start_time DESC"],
-        max_results=1
-    )
-    if not experimentos:
+    models_dir = os.path.join("mlruns", "0", "models")
+    if not os.path.isdir(models_dir):
         raise HTTPException(status_code=404, detail="No hay modelos entrenados en MLflow.")
 
-    run = experimentos[0]
-    print(f"Run ID: {run.info.run_id}")
-    print(f"Métricas: {run.data.metrics}")
+    candidatos = [
+        os.path.join(models_dir, d)
+        for d in os.listdir(models_dir)
+        if os.path.isdir(os.path.join(models_dir, d))
+    ]
+    if not candidatos:
+        raise HTTPException(status_code=404, detail="No hay modelos entrenados en MLflow.")
 
-    run_id = run.info.run_id
-    model_uri = f"runs:/{run_id}/model"
-    model = mlflow.xgboost.load_model(model_uri)
+    ultimo = max(candidatos, key=os.path.getmtime)
+    artifact_path = os.path.join(ultimo, "artifacts")
+    print(f"Cargando modelo desde: {artifact_path}")
+    model = mlflow.xgboost.load_model(artifact_path)
     return model
 
 
