@@ -1,0 +1,22 @@
+artifact_path: file:///D:/5_Universidad/ProyectoMetodologiasAgiles/tdsp_template/mlruns/0/models/m-8d95bd9540fb4090bfa393cd81cfd5b6/artifacts
+flavors:
+  python_function:
+    data: model.ubj
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.xgboost
+    python_version: 3.11.4
+  xgboost:
+    code: null
+    data: model.ubj
+    model_class: xgboost.sklearn.XGBRegressor
+    model_format: ubj
+    xgb_version: 3.2.0
+mlflow_version: 3.13.0
+model_id: m-8d95bd9540fb4090bfa393cd81cfd5b6
+model_size_bytes: 1435654
+model_uuid: m-8d95bd9540fb4090bfa393cd81cfd5b6
+prompts: null
+run_id: 5931d858295144828693c2deece4da1a
+utc_time_created: '2026-06-08 19:53:19.373182'
