@@ -54,6 +54,13 @@ app.add_middleware(
 
 # ── Utilidad: cargar último modelo de MLflow ───────────────────────────────────
 def cargar_ultimo_modelo():
+    if os.path.exists("best_model.txt"):
+        with open("best_model.txt") as f:
+            artifact_path = f.read().strip()
+        print(f"Cargando modelo desde best_model.txt: {artifact_path}")
+        return mlflow.xgboost.load_model(artifact_path)
+
+    # Fallback: escanear mlruns/
     models_dir = os.path.join("mlruns", "0", "models")
     if not os.path.isdir(models_dir):
         raise HTTPException(status_code=404, detail="No hay modelos entrenados en MLflow.")
@@ -68,9 +75,8 @@ def cargar_ultimo_modelo():
 
     ultimo = max(candidatos, key=os.path.getmtime)
     artifact_path = os.path.join(ultimo, "artifacts")
-    print(f"Cargando modelo desde: {artifact_path}")
-    model = mlflow.xgboost.load_model(artifact_path)
-    return model
+    print(f"Cargando modelo desde fallback: {artifact_path}")
+    return mlflow.xgboost.load_model(artifact_path)
 
 
 # ── Utilidad: construir vector de features para una fecha ─────────────────────

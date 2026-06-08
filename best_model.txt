@@ -1,0 +1,1 @@
+mlruns/0/models/m-d3aad5f8d6e249118cf765dc4c3b7e48/artifacts

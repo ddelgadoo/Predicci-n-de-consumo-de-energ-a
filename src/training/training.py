@@ -4,6 +4,7 @@ from xgboost import XGBRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score, accuracy_score
 from sklearn.model_selection import train_test_split
 import mlflow
+import os
 
 
 
@@ -39,9 +40,14 @@ def entrenar_xgboost(X: pd.DataFrame,
         mlflow.log_metric("rmse",rmse)
         mlflow.log_metric("r2",r2)
         mlflow.xgboost.log_model(model,"model")
+        artifact_uri = mlflow.get_artifact_uri("model")
+        rel_path = os.path.relpath(artifact_uri.replace("file:///", "").replace("file://", ""))
 
         trains_ds = mlflow.data.from_pandas(pd.concat([X,y],axis = 1),source = "training_data")
         mlflow.log_input(trains_ds, context = "training")
+
+        with open("best_model.txt", "w") as f:
+            f.write(rel_path)
 
         print(f"Modelo entrenado. mae: {mae}, rmse: {rmse}, r2: {r2}")
         return model, y_test, y_pred
