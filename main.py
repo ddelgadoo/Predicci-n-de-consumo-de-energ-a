@@ -9,6 +9,7 @@ from src.data.carga_datos import descargar_rango
 from src.preprocessing.preprocessing import feature_engineering
 import os
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 
 
 
@@ -169,3 +170,8 @@ def datos_hasta(fecha: str):
     df['FechaHora'] = df['FechaHora'].astype(str)
 
     return df.to_dict(orient='records')
+
+
+@app.get("/")
+def dashboard():
+    return FileResponse("dashboard.html")
